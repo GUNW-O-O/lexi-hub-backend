@@ -12,18 +12,22 @@ export class AuthService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService) { }
 
-  async signUp(id: string, password: string) {
+  async signUp(id: string, password: string, nickname: string) {
     // 1. 이미 존재하는 사용자인지 확인
-    const existingUser = await this.userModel.findOne({ id }).exec();
+    const existingUser = await this.userModel.findOne({ $or: [{ id }, { nickname }] }).exec();
     if (existingUser) {
-      throw new ConflictException('이미 존재하는 아이디입니다.');
+      if (existingUser.id === id) {
+        throw new ConflictException('이미 존재하는 아이디입니다.');
+      } else {
+        throw new ConflictException('이미 존재하는 닉네임입니다.');
+      }
     }
 
     // 2. 비밀번호 해시
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // 3. 새로운 사용자 생성 및 저장
-    const newUser = new this.userModel({ id, password: hashedPassword });
+    const newUser = new this.userModel({ id, password: hashedPassword, nickname });
     await newUser.save();
 
     return { message: '회원가입 성공' };
@@ -44,7 +48,7 @@ export class AuthService {
 
     // TODO: 비밀번호가 일치하면 JWT를 발급하는 로직을 추가합니다.
     // JWT 페이로드 생성
-    const payload = { sub: user.id };
+    const payload = { sub: user.id, nickname: user.nickname };
 
     return {
       access_token: this.jwtService.sign(payload),

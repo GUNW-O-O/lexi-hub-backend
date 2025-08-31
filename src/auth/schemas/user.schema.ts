@@ -11,6 +11,9 @@ export class User {
 
   @Prop({ required: true })
   password: string;
+
+  @Prop({ required: true, unique: true }) // 닉네임 필드 추가
+  nickname: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
