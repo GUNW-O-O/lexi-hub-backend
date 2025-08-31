@@ -14,17 +14,18 @@ export class AuthService {
     return { message: '회원가입 성공' };
   }
 
-  async login(id: string, password: string) {
+  async login(data: { id: string, password: string }) {
     // TODO: 데이터베이스에서 id를 이용해 사용자를 찾습니다.
-    const user = { id: 'test', hashedPassword: '123123' }; // 임시 사용자 데이터
+    const preHashedPassword = await bcrypt.hash('123123', 10);
+    const user = { id: 'test', hashedPassword: preHashedPassword }; // 임시 사용자 데이터
     
     // 1. 사용자가 존재하지 않는 경우
-    if (!user) {
+    if (data.id !== user.id) {
       throw new UnauthorizedException('존재하지 않는 사용자입니다.');
     }
     
     // 2. 비밀번호 일치 여부 확인
-    const isMatch = await bcrypt.compare(password, user.hashedPassword);
+    const isMatch = await bcrypt.compare(data.password, user.hashedPassword);
     if (!isMatch) {
       throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
     }

@@ -12,7 +12,7 @@ export class AuthController {
   
   @Post('login')
   async login(@Body() data: { id: string; password: string }) {
-    const result = await this.authService.login(data.id, data.password);
+    const result = await this.authService.login(data);
     return result;
   }
 }
