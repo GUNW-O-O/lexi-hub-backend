@@ -1,6 +1,7 @@
 // src/auth/auth.service.ts
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose'; // Import `InjectModel`
+import { JwtService } from '@nestjs/jwt'; // JwtService 임포트
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './schemas/user.schema';
@@ -8,7 +9,8 @@ import { User, UserDocument } from './schemas/user.schema';
 @Injectable()
 export class AuthService {
 
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>,
+    private jwtService: JwtService) { }
 
   async signUp(id: string, password: string) {
     // 1. 이미 존재하는 사용자인지 확인
@@ -41,6 +43,12 @@ export class AuthService {
     }
 
     // TODO: 비밀번호가 일치하면 JWT를 발급하는 로직을 추가합니다.
-    return { message: '로그인 성공' };
+    // JWT 페이로드 생성
+    const payload = { sub: user.id };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+      message: '로그인 성공'
+    };
   }
 }
