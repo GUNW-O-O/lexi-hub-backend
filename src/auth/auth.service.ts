@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt'; // JwtService 임포트
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './schemas/user.schema';
+import { Payload } from './auth.interface';
 
 @Injectable()
 export class AuthService {
@@ -46,13 +47,23 @@ export class AuthService {
       throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
     }
 
-    // TODO: 비밀번호가 일치하면 JWT를 발급하는 로직을 추가합니다.
     // JWT 페이로드 생성
-    const payload = { sub: user.id, nickname: user.nickname };
-
-    return {
-      access_token: this.jwtService.sign(payload),
-      message: '로그인 성공'
-    };
+    if(user && user._id) {
+      const payload = { id: user._id.toString(), nickname: user.nickname };
+      return {
+        access_token: this.jwtService.sign(payload),
+        message: '로그인 성공'
+      };
+    } else {
+      throw new UnauthorizedException('로그인 실패');
+    }
+  }
+  async validateUser(payload: Payload): Promise<User | null> {
+    // MongoDB에서 payload.id를 사용해 사용자 찾기
+    const user = await this.userModel.findById(payload.id).exec();
+    if (!user) {
+      return null;
+    }
+    return user;
   }
 }
