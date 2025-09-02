@@ -5,10 +5,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Note, NoteSchema } from './schemas/note.schema';
 import { NoteController } from './note.controller';
 import { NoteService } from './note.service';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Note.name, schema: NoteSchema }])
+    MongooseModule.forFeature([{ name: Note.name, schema: NoteSchema }]),
+    AuthModule,
   ],
   controllers: [NoteController],
   providers: [NoteService],

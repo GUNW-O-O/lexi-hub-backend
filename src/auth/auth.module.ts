@@ -10,7 +10,7 @@ import { JwtStrategy } from './jwt.strategy'; // JwtStrategy 임포트
 @Module({
   imports: [
     // Auth 모듈에 User 모델 등록
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({ // JwtModule 등록
       secret: '123123', // 민감한 정보이므로 환경 변수로 관리해야 함
