@@ -21,7 +21,7 @@ export class NoteController {
     // _id 사용
     return this.noteService.getNotesByAuthor(req.user.id);
   }
-  @Get(':id')
+  @Get('/typing/:id')
   async getNoteByNoteId(@Request() req, @Param('id')noteId: string) {
     return this.noteService.getNoteByNoteId(req.user.id, noteId);
   }

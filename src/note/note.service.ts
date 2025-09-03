@@ -26,7 +26,6 @@ export class NoteService {
 
   // 노트 아이디로 노트 반환
   async getNoteByNoteId(authorId: string, noteId: string): Promise<Note> {
-    console.log('전달받은 noteId:', noteId);
     const note = await this.noteModel.findOne({_id: noteId, author: authorId }).exec();
     if(!note) {
       throw new NotFoundException('해당 노트를 찾을 수 없습니다.');
