@@ -12,9 +12,19 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() data: { id: string; password: string }) {
-    const result = await this.authService.login(data);
-    return result;
+  async login(@Body() data: { id: string; password: string }, @Res({ passthrough: true }) res: any) {
+    const { accessToken, refreshToken } = await this.authService.login(data);
+    console.log(refreshToken);
+
+    // 쿠키 설정 로직 추가
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === '123123',
+      sameSite: 'lax',
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    return { accessToken };
   }
 
   @Post('refresh-token')
@@ -30,7 +40,7 @@ export class AuthController {
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === '123123',
-      sameSite: 'strict',
+      sameSite: 'lax',
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7일 후 만료
     });
 

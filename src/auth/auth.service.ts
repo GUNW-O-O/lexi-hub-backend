@@ -51,6 +51,7 @@ export class AuthService {
       }
       else return { accessToken: '', newRefreshToken: '' };
     } catch (error) {
+      console.error('토큰 검증 오류:', error.message);
       throw new UnauthorizedException('리프레시 토큰이 유효하지 않습니다.');
     }
   }
@@ -70,17 +71,17 @@ export class AuthService {
 
     // JWT 페이로드 생성
     if (user && user._id) {
-      const payload = { id: user._id.toString(), nickname: user.nickname };
-      const access_token = this.jwtService.sign(payload);
-      const refresh_token = this.jwtService.sign(payload, { expiresIn: '7d' });
-      return { access_token, refresh_token };
+      const payload = { sub: user._id.toString(), id: user.id, nickname: user.nickname };
+      const accessToken = this.jwtService.sign(payload);
+      const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+      return { accessToken, refreshToken };
     } else {
       throw new UnauthorizedException('로그인 실패');
     }
   }
   async validateUser(payload: Payload): Promise<User | null> {
     // MongoDB에서 payload.id를 사용해 사용자 찾기
-    const user = await this.userModel.findById(payload.id).exec();
+    const user = await this.userModel.findById(payload.sub).exec();
     if (!user) {
       return null;
     }
