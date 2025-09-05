@@ -34,6 +34,27 @@ export class AuthService {
     return { message: '회원가입 성공' };
   }
 
+  async refreshToken(refreshToken: string): Promise<{ accessToken: string; newRefreshToken: string }> {
+    try {
+      const payload = this.jwtService.verify(refreshToken);
+      const user = await this.userModel.findById(payload.sub);
+
+      if (!user) {
+        throw new UnauthorizedException('유저를 찾을 수 없습니다.');
+      }
+
+      if (user && user._id) {
+        const newPayload = { sub: user._id.toString(), id: user.id, nickname: user.nickname };
+        const newAccessToken = this.jwtService.sign(newPayload);
+        const newRefreshToken = this.jwtService.sign(newPayload, { expiresIn: '7d' });
+        return { accessToken: newAccessToken, newRefreshToken };
+      }
+      else return { accessToken: '', newRefreshToken: '' };
+    } catch (error) {
+      throw new UnauthorizedException('리프레시 토큰이 유효하지 않습니다.');
+    }
+  }
+
   async login(data: { id: string, password: string }) {
     // 1. 데이터베이스에서 id를 이용해 사용자를 찾습니다.
     const user = await this.userModel.findOne({ id: data.id }).exec();
@@ -48,12 +69,11 @@ export class AuthService {
     }
 
     // JWT 페이로드 생성
-    if(user && user._id) {
+    if (user && user._id) {
       const payload = { id: user._id.toString(), nickname: user.nickname };
-      return {
-        access_token: this.jwtService.sign(payload),
-        message: '로그인 성공'
-      };
+      const access_token = this.jwtService.sign(payload);
+      const refresh_token = this.jwtService.sign(payload, { expiresIn: '7d' });
+      return { access_token, refresh_token };
     } else {
       throw new UnauthorizedException('로그인 실패');
     }
