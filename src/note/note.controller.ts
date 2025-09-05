@@ -1,6 +1,6 @@
 // src/note/note.controller.ts
 
-import { Body, Controller, Post, UseGuards, Request, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request, Get, Param, Put, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { NoteService } from './note.service';
 import { CreateNoteDto } from './dto/createNote.dto'; // 다음 단계에서 만들 DTO
@@ -38,4 +38,9 @@ export class NoteController {
     return this.noteService.updateNote(req.user.id, noteId, updateNoteDto);
   }
 
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteNote(@Request() req:any, @Param('id') noteId: string) {
+    await this.noteService.deleteNote(req.user.id, noteId);
+  }
 }

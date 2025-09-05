@@ -54,4 +54,14 @@ export class NoteService {
     return note;
   }
 
+  async deleteNote(userId: string, noteId: string): Promise<void> {
+    const note = await this.noteModel.findById(noteId).exec();
+    if (!note) {
+      throw new NotFoundException('노트를 찾을 수 없습니다.');
+    }
+    if (note.author.toString() !== userId) {
+      throw new UnauthorizedException('노트를 삭제할 권한이 없습니다.');
+    }
+    await note.deleteOne({ _id: noteId });
+  }
 }
