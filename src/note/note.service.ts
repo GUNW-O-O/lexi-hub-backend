@@ -49,6 +49,7 @@ export class NoteService {
     // 3. 노트 업데이트
     note.title = updateNoteDto.title ?? note.title;
     note.flashcards = updateNoteDto.flashcards ?? note.flashcards;
+    note.content = updateNoteDto.content ?? note.content;
 
     await note.save();
     return note;

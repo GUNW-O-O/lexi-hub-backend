@@ -14,4 +14,8 @@ export class UpdateNoteDto {
   @ValidateNested({ each: true }) // 배열 내 각 객체에 대한 유효성 검사
   @Type(() => FlashcardItemDto)
   flashcards?: FlashcardItemDto[];
+
+  @IsOptional()
+  @IsString()
+  content?: string;
 }
