@@ -10,7 +10,7 @@ import { NoteModule } from './note/note.module';
 @Module({
   imports: [
     ConfigModule.forRoot(), // 환경 변수 사용을 위한 모듈
-    MongooseModule.forRoot('mongodb://localhost:27017/quiz-works'), // MongoDB 연결
+    MongooseModule.forRoot('mongodb://localhost:27017/lexi-hub'), // MongoDB 연결
     AuthModule, NoteModule
   ],
   controllers: [AppController],
